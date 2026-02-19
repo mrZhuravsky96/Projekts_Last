@@ -25,7 +25,11 @@ import {
     getProjectWithTasksJoin,
 }
     from "./repositories/project-with-tasks.repository";
+import { errorHandler, notFoundHandler } from "./middleware/error.middleware";
+import logger from "./utils/logger";
 const app = express();
+
+
 const port = Number(process.env.PORT) || 3000;
 
 const HTTP = {
@@ -206,4 +210,11 @@ app.get("/projects/:id/with-tasks", async (req: Request, res: Response) => {
     }
     res.status(HTTP.OK).json(project);
 });
-app.listen(port, () => console.log(`✅ http://localhost:${port}`));
+
+// 404 handler - для несуществующих endpoint'ов
+app.use(notFoundHandler);
+
+// Глобальная обработка ошибок - всегда последняя!
+app.use(errorHandler);
+
+app.listen(port, () => logger.info(`Server started on http://localhost:${port}`));

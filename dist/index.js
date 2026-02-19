@@ -9,6 +9,8 @@ const cors_1 = __importDefault(require("cors"));
 const projects_repository_1 = require("./repositories/projects.repository");
 const tasks_repository_1 = require("./repositories/tasks.repository");
 const project_with_tasks_repository_1 = require("./repositories/project-with-tasks.repository");
+const error_middleware_1 = require("./middleware/error.middleware");
+const logger_1 = __importDefault(require("./utils/logger"));
 const app = (0, express_1.default)();
 const port = Number(process.env.PORT) || 3000;
 const HTTP = {
@@ -167,5 +169,9 @@ app.get("/projects/:id/with-tasks", async (req, res) => {
     }
     res.status(HTTP.OK).json(project);
 });
-app.listen(port, () => console.log(`✅ http://localhost:${port}`));
+// 404 handler - для несуществующих endpoint'ов
+app.use(error_middleware_1.notFoundHandler);
+// Глобальная обработка ошибок - всегда последняя!
+app.use(error_middleware_1.errorHandler);
+app.listen(port, () => logger_1.default.info(`Server started on http://localhost:${port}`));
 //# sourceMappingURL=index.js.map
