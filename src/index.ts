@@ -14,7 +14,6 @@ import {
 } from "./repositories/projects.repository";
 import {
     createTask,
-    TaskRowDb,
     NewTaskInput,
     UpdateTaskInput,
     deleteTask,
@@ -137,10 +136,10 @@ app.post("/projects/:projectId/tasks", async (req: Request, res: Response) => {
     }
 
     const { title } = req.body as NewTaskInput;
-    if (!title) {
-        res.status(HTTP.BAD_REQUEST).json({ error: "title is required" });
-        return;
-    }
+    // if (!title) {
+    //     res.status(HTTP.BAD_REQUEST).json({ error: "title is required" });
+    //     return;
+    // }
 
     const task = await createTask({ project_id: projectIdNum, title });
     res.status(HTTP.CREATED).json(task);
@@ -160,12 +159,18 @@ app.get("/projects/:projectId/tasks", async (req: Request, res: Response) => {
 // PUT /tasks/:id — полная замена задачи. Body: { "title": ..., "is_done": ... }
 app.put("/tasks/:id", async (req: Request, res: Response) => {
     const idNum = Number(req.params.id);
-    if (isNaN(idNum) || idNum <= 0) {
+    if (isNaN(idNum) || idNum <= 0 ) { 
         res.status(HTTP.BAD_REQUEST).json({ error: "Invalid task ID" });
         return;
     }
     const { title, is_done } = req.body as UpdateTaskInput;
+    if (!title || is_done === undefined) {
+        res.status(HTTP.BAD_REQUEST).json({ error: "title and is_done are required" });
+        return;
+    }
+
     const task = await updateTask({ id: idNum, title, is_done });
+    
     if (!task) {
         res.sendStatus(HTTP.NOT_FOUND);
         return;
@@ -185,7 +190,7 @@ app.delete("/tasks/:id", async (req: Request, res: Response) => {
         res.sendStatus(HTTP.NOT_FOUND);
         return;
     }
-    res.status(HTTP.OK).json(task);
+    res.status(HTTP.NO_CONTENT).json(task);
 });
 // GET /projects/:id/with-tasks — получить проект с задачами
 app.get("/projects/:id/with-tasks", async (req: Request, res: Response) => {
@@ -200,6 +205,5 @@ app.get("/projects/:id/with-tasks", async (req: Request, res: Response) => {
         return;
     }
     res.status(HTTP.OK).json(project);
-})
+});
 app.listen(port, () => console.log(`✅ http://localhost:${port}`));
-

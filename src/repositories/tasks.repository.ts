@@ -11,7 +11,7 @@ export type TaskRowDb = {
 
 export type NewTaskInput = {
     project_id: number;
-    title: string;
+    title?: string;
     is_done?: boolean;
 };
 
@@ -39,8 +39,9 @@ export const updateTask = async (data: UpdateTaskInput) => {
     const { rows } = await pool.query(`
         UPDATE tasks
         SET title = COALESCE($2, title), is_done = COALESCE($3, is_done)
-        WHERE id = $1 RETURNING id, project_id, title, is_done, created_at
-    `, [id, title, is_done]);
+        WHERE id = $1
+        RETURNING id, project_id, title, is_done, created_at
+    `, [id, title ?? null, is_done ?? null]);
     return rows[0];
 };
 
@@ -58,9 +59,8 @@ export const createTask = async (data: NewTaskInput) => {
     const { rows } = await pool.query(`
         INSERT INTO tasks (project_id, title, is_done)
         VALUES ($1, $2, COALESCE($3, false)) RETURNING id, project_id, title, is_done, created_at
-    `, [data.project_id, data.title, data.is_done ?? null]);
+    `, [data.project_id, data.title ?? null, data.is_done ?? null]);
     return rows[0];
 };
 
 
-   

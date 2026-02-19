@@ -38,23 +38,18 @@ export type UpdateProjectInput = {
 
 /**
  * Фильтр списка через query-параметры.
- * name — подстрочный (ILIKE) поиск по названию, регистронезависимо.
+ * name — подстрочный (ILIKE) поиск по названию
  */
 export type ProjectFilter = {
     name?: string;
     status?: "todo" | "in_progress" | "done";
-};
-export type NewTaskInput = {
-    project_id: number;
-    title: string;
-    is_done?: boolean;
 };
 /** Список: весь или отфильтрованный по подстроке name (ILIKE). */
 export async function listProjects(
     filter: ProjectFilter = {}
 ): Promise<ProjectRowDb[]> {
     const { name, status } = filter;
-    const params = [name ?? null, status ?? null];
+    const params = [ name ? `%${name}%` : null, status ?? null];
 
     if (!name && !status) {
         const { rows } = await pool.query<ProjectRowDb>(
@@ -96,9 +91,7 @@ export async function createProject(
 }
 
 /** Получить один проект по id. Если нет — вернём null. */
-export async function getProjectById(
-    id: number
-): Promise<ProjectRowDb | null> {
+export async function getProjectById( id: number): Promise<ProjectRowDb | null> {
     const { rows } = await pool.query<ProjectRowDb>(
         `SELECT *
          FROM projects

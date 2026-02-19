@@ -10,7 +10,7 @@ const db_1 = require("../db");
 /** Список: весь или отфильтрованный по подстроке name (ILIKE). */
 async function listProjects(filter = {}) {
     const { name, status } = filter;
-    const params = [name ?? null, status ?? null];
+    const params = [name ? `%${name}%` : null, status ?? null];
     if (!name && !status) {
         const { rows } = await db_1.pool.query(`SELECT *
              FROM projects

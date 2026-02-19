@@ -18,8 +18,9 @@ const updateTask = async (data) => {
     const { rows } = await db_1.pool.query(`
         UPDATE tasks
         SET title = COALESCE($2, title), is_done = COALESCE($3, is_done)
-        WHERE id = $1 RETURNING id, project_id, title, is_done, created_at
-    `, [id, title, is_done]);
+        WHERE id = $1
+        RETURNING id, project_id, title, is_done, created_at
+    `, [id, title ?? null, is_done ?? null]);
     return rows[0];
 };
 exports.updateTask = updateTask;
@@ -37,7 +38,7 @@ const createTask = async (data) => {
     const { rows } = await db_1.pool.query(`
         INSERT INTO tasks (project_id, title, is_done)
         VALUES ($1, $2, COALESCE($3, false)) RETURNING id, project_id, title, is_done, created_at
-    `, [data.project_id, data.title, data.is_done ?? null]);
+    `, [data.project_id, data.title ?? null, data.is_done ?? null]);
     return rows[0];
 };
 exports.createTask = createTask;

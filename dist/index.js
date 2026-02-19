@@ -103,10 +103,10 @@ app.post("/projects/:projectId/tasks", async (req, res) => {
         return;
     }
     const { title } = req.body;
-    if (!title) {
-        res.status(HTTP.BAD_REQUEST).json({ error: "title is required" });
-        return;
-    }
+    // if (!title) {
+    //     res.status(HTTP.BAD_REQUEST).json({ error: "title is required" });
+    //     return;
+    // }
     const task = await (0, tasks_repository_1.createTask)({ project_id: projectIdNum, title });
     res.status(HTTP.CREATED).json(task);
 });
@@ -128,6 +128,10 @@ app.put("/tasks/:id", async (req, res) => {
         return;
     }
     const { title, is_done } = req.body;
+    if (!title || is_done === undefined) {
+        res.status(HTTP.BAD_REQUEST).json({ error: "title and is_done are required" });
+        return;
+    }
     const task = await (0, tasks_repository_1.updateTask)({ id: idNum, title, is_done });
     if (!task) {
         res.sendStatus(HTTP.NOT_FOUND);
@@ -147,7 +151,7 @@ app.delete("/tasks/:id", async (req, res) => {
         res.sendStatus(HTTP.NOT_FOUND);
         return;
     }
-    res.status(HTTP.OK).json(task);
+    res.status(HTTP.NO_CONTENT).json(task);
 });
 // GET /projects/:id/with-tasks — получить проект с задачами
 app.get("/projects/:id/with-tasks", async (req, res) => {
